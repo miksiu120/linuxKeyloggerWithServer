@@ -1,1 +1,1 @@
-/home/miksiu/driver/keylogger/keylogger.o
+/home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/keylogger/keylogger.o
