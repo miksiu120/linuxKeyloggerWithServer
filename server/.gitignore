@@ -68,3 +68,6 @@ desktop.ini
 
 # Generated files
 *.sln.ide
+
+# Wyjątek dla folderu driver
+!driver/
