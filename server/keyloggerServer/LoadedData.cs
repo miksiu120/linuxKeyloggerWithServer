@@ -2,5 +2,5 @@ namespace keyloggerServer;
 
 public class LoadedData
 {
-    public string keys { get; set; }
+    public string Keys { get; set; }
 }

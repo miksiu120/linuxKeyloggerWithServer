@@ -33,7 +33,9 @@ namespace keyloggerServer.Controllers
         [HttpPost]
         public void Show([FromBody] LoadedData value)
         {
-            Console.WriteLine(value.keys);
+            Console.WriteLine(value.Keys);
         }
+        
+        
     }
 }

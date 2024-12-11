@@ -4,6 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -11,5 +12,7 @@ var app = builder.Build();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.Urls.Add("http://localhost:5247");  // Nasłuchuj na IPv4
 
 app.Run();
