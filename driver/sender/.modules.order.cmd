@@ -1,1 +1,1 @@
-savedcmd_/home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/sender/modules.order := {   echo /home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/sender/sender.o; :; } > /home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/sender/modules.order
+savedcmd_/home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/sender/modules.order := {   echo /home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/sender/tester.o; :; } > /home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/sender/modules.order
