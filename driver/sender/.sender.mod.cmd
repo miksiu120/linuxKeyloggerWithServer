@@ -1,1 +1,1 @@
-savedcmd_/home/miksiu/driver/sender/sender.mod := printf '%s\n'   sender.o | awk '!x[$$0]++ { print("/home/miksiu/driver/sender/"$$0) }' > /home/miksiu/driver/sender/sender.mod
+savedcmd_/home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/sender/sender.mod := printf '%s\n'   sender.o | awk '!x[$$0]++ { print("/home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/sender/"$$0) }' > /home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/sender/sender.mod

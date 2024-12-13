@@ -1,1 +1,1 @@
-/home/miksiu/driver/sender/sender.o
+/home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/sender/sender.o

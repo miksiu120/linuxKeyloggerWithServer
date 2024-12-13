@@ -1,1 +1,1 @@
-savedcmd_/home/miksiu/driver/sender/Module.symvers :=  scripts/mod/modpost -M        -o /home/miksiu/driver/sender/Module.symvers -n -T /home/miksiu/driver/sender/modules.order -i Module.symvers -e 
+savedcmd_/home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/sender/Module.symvers :=  scripts/mod/modpost -M        -o /home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/sender/Module.symvers -n -T /home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/sender/modules.order -i Module.symvers -e 

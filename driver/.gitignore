@@ -1,0 +1,30 @@
+# Ignorowanie plików binarnych modułów
+*.o
+*.ko
+*.mod
+*.mod.c
+*.symvers
+*.order
+
+# Ignorowanie katalogów build
+*.tmp_versions/
+
+# Pliki tymczasowe generowane przez edytory
+*.swp
+*.swo
+*~
+*.bak
+
+# Logi i pliki śmieci
+*.log
+*.out
+*.dmesg
+
+# Ignorowanie Makefile'ów generowanych dynamicznie
+Makefile~
+Module.symvers
+modules.order
+
+# Ignorowanie backupów
+*.old
+*.orig
