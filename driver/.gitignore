@@ -28,3 +28,5 @@ modules.order
 # Ignorowanie backupów
 *.old
 *.orig
+*.cmd
+

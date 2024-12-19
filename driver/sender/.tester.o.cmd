@@ -1099,6 +1099,81 @@ deps_/home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/sender/tester
   include/uapi/linux/net.h \
   include/linux/in.h \
   include/uapi/linux/in.h \
+  include/linux/kfifo.h \
+  include/linux/dma-mapping.h \
+    $(wildcard include/config/DMA_API_DEBUG) \
+    $(wildcard include/config/HAS_DMA) \
+    $(wildcard include/config/DMA_NEED_SYNC) \
+    $(wildcard include/config/NEED_DMA_MAP_STATE) \
+  include/linux/device.h \
+    $(wildcard include/config/HAS_IOMEM) \
+    $(wildcard include/config/GENERIC_MSI_IRQ) \
+    $(wildcard include/config/ENERGY_MODEL) \
+    $(wildcard include/config/PINCTRL) \
+    $(wildcard include/config/DMA_OPS) \
+    $(wildcard include/config/DMA_DECLARE_COHERENT) \
+    $(wildcard include/config/DMA_CMA) \
+    $(wildcard include/config/SWIOTLB) \
+    $(wildcard include/config/SWIOTLB_DYNAMIC) \
+    $(wildcard include/config/ARCH_HAS_SYNC_DMA_FOR_DEVICE) \
+    $(wildcard include/config/ARCH_HAS_SYNC_DMA_FOR_CPU) \
+    $(wildcard include/config/ARCH_HAS_SYNC_DMA_FOR_CPU_ALL) \
+    $(wildcard include/config/DMA_OPS_BYPASS) \
+    $(wildcard include/config/PM_SLEEP) \
+    $(wildcard include/config/OF) \
+    $(wildcard include/config/DEVTMPFS) \
+  include/linux/dev_printk.h \
+  include/linux/energy_model.h \
+    $(wildcard include/config/SCHED_DEBUG) \
+  include/linux/sched/cpufreq.h \
+    $(wildcard include/config/CPU_FREQ) \
+  include/linux/sched/topology.h \
+    $(wildcard include/config/SCHED_CLUSTER) \
+    $(wildcard include/config/SCHED_MC) \
+    $(wildcard include/config/CPU_FREQ_GOV_SCHEDUTIL) \
+  include/linux/sched/idle.h \
+  include/linux/sched/sd_flags.h \
+  include/linux/klist.h \
+  include/linux/pm.h \
+    $(wildcard include/config/VT_CONSOLE_SLEEP) \
+    $(wildcard include/config/CXL_SUSPEND) \
+    $(wildcard include/config/PM) \
+    $(wildcard include/config/PM_CLK) \
+    $(wildcard include/config/PM_GENERIC_DOMAINS) \
+  include/linux/device/bus.h \
+    $(wildcard include/config/ACPI) \
+  include/linux/device/class.h \
+  include/linux/device/driver.h \
+  arch/x86/include/asm/device.h \
+  include/linux/pm_wakeup.h \
+  include/linux/dma-direction.h \
+  include/linux/scatterlist.h \
+    $(wildcard include/config/NEED_SG_DMA_LENGTH) \
+    $(wildcard include/config/NEED_SG_DMA_FLAGS) \
+    $(wildcard include/config/DEBUG_SG) \
+    $(wildcard include/config/SGL_ALLOC) \
+    $(wildcard include/config/ARCH_NO_SG_CHAIN) \
+    $(wildcard include/config/SG_POOL) \
+  arch/x86/include/asm/io.h \
+    $(wildcard include/config/MTRR) \
+    $(wildcard include/config/X86_PAT) \
+  arch/x86/include/generated/asm/early_ioremap.h \
+  include/asm-generic/early_ioremap.h \
+    $(wildcard include/config/GENERIC_EARLY_IOREMAP) \
+  arch/x86/include/asm/shared/io.h \
+  include/asm-generic/io.h \
+    $(wildcard include/config/GENERIC_IOMAP) \
+    $(wildcard include/config/TRACE_MMIO_ACCESS) \
+    $(wildcard include/config/GENERIC_IOREMAP) \
+    $(wildcard include/config/HAS_IOPORT_MAP) \
+  include/asm-generic/iomap.h \
+  include/asm-generic/pci_iomap.h \
+    $(wildcard include/config/PCI) \
+    $(wildcard include/config/NO_GENERIC_PCI_IOPORT_MAP) \
+    $(wildcard include/config/GENERIC_PCI_IOMAP) \
+  include/linux/logic_pio.h \
+    $(wildcard include/config/INDIRECT_PIO) \
+  include/linux/fwnode.h \
   include/net/sock.h \
     $(wildcard include/config/IPV6) \
     $(wildcard include/config/SOCK_RX_QUEUE_MAPPING) \
@@ -1293,85 +1368,11 @@ deps_/home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/sender/tester
   arch/x86/include/asm/cacheflush.h \
   include/asm-generic/cacheflush.h \
   include/linux/kmsan.h \
-  include/linux/dma-direction.h \
   include/linux/highmem-internal.h \
   include/net/checksum.h \
   arch/x86/include/asm/checksum.h \
     $(wildcard include/config/GENERIC_CSUM) \
   arch/x86/include/asm/checksum_64.h \
-  include/linux/dma-mapping.h \
-    $(wildcard include/config/DMA_API_DEBUG) \
-    $(wildcard include/config/HAS_DMA) \
-    $(wildcard include/config/DMA_NEED_SYNC) \
-    $(wildcard include/config/NEED_DMA_MAP_STATE) \
-  include/linux/device.h \
-    $(wildcard include/config/HAS_IOMEM) \
-    $(wildcard include/config/GENERIC_MSI_IRQ) \
-    $(wildcard include/config/ENERGY_MODEL) \
-    $(wildcard include/config/PINCTRL) \
-    $(wildcard include/config/DMA_OPS) \
-    $(wildcard include/config/DMA_DECLARE_COHERENT) \
-    $(wildcard include/config/DMA_CMA) \
-    $(wildcard include/config/SWIOTLB) \
-    $(wildcard include/config/SWIOTLB_DYNAMIC) \
-    $(wildcard include/config/ARCH_HAS_SYNC_DMA_FOR_DEVICE) \
-    $(wildcard include/config/ARCH_HAS_SYNC_DMA_FOR_CPU) \
-    $(wildcard include/config/ARCH_HAS_SYNC_DMA_FOR_CPU_ALL) \
-    $(wildcard include/config/DMA_OPS_BYPASS) \
-    $(wildcard include/config/PM_SLEEP) \
-    $(wildcard include/config/OF) \
-    $(wildcard include/config/DEVTMPFS) \
-  include/linux/dev_printk.h \
-  include/linux/energy_model.h \
-    $(wildcard include/config/SCHED_DEBUG) \
-  include/linux/sched/cpufreq.h \
-    $(wildcard include/config/CPU_FREQ) \
-  include/linux/sched/topology.h \
-    $(wildcard include/config/SCHED_CLUSTER) \
-    $(wildcard include/config/SCHED_MC) \
-    $(wildcard include/config/CPU_FREQ_GOV_SCHEDUTIL) \
-  include/linux/sched/idle.h \
-  include/linux/sched/sd_flags.h \
-  include/linux/klist.h \
-  include/linux/pm.h \
-    $(wildcard include/config/VT_CONSOLE_SLEEP) \
-    $(wildcard include/config/CXL_SUSPEND) \
-    $(wildcard include/config/PM) \
-    $(wildcard include/config/PM_CLK) \
-    $(wildcard include/config/PM_GENERIC_DOMAINS) \
-  include/linux/device/bus.h \
-    $(wildcard include/config/ACPI) \
-  include/linux/device/class.h \
-  include/linux/device/driver.h \
-  arch/x86/include/asm/device.h \
-  include/linux/pm_wakeup.h \
-  include/linux/scatterlist.h \
-    $(wildcard include/config/NEED_SG_DMA_LENGTH) \
-    $(wildcard include/config/NEED_SG_DMA_FLAGS) \
-    $(wildcard include/config/DEBUG_SG) \
-    $(wildcard include/config/SGL_ALLOC) \
-    $(wildcard include/config/ARCH_NO_SG_CHAIN) \
-    $(wildcard include/config/SG_POOL) \
-  arch/x86/include/asm/io.h \
-    $(wildcard include/config/MTRR) \
-    $(wildcard include/config/X86_PAT) \
-  arch/x86/include/generated/asm/early_ioremap.h \
-  include/asm-generic/early_ioremap.h \
-    $(wildcard include/config/GENERIC_EARLY_IOREMAP) \
-  arch/x86/include/asm/shared/io.h \
-  include/asm-generic/io.h \
-    $(wildcard include/config/GENERIC_IOMAP) \
-    $(wildcard include/config/TRACE_MMIO_ACCESS) \
-    $(wildcard include/config/GENERIC_IOREMAP) \
-    $(wildcard include/config/HAS_IOPORT_MAP) \
-  include/asm-generic/iomap.h \
-  include/asm-generic/pci_iomap.h \
-    $(wildcard include/config/PCI) \
-    $(wildcard include/config/NO_GENERIC_PCI_IOPORT_MAP) \
-    $(wildcard include/config/GENERIC_PCI_IOMAP) \
-  include/linux/logic_pio.h \
-    $(wildcard include/config/INDIRECT_PIO) \
-  include/linux/fwnode.h \
   include/linux/netdev_features.h \
   include/net/flow_dissector.h \
   include/uapi/linux/if_ether.h \
@@ -1531,7 +1532,6 @@ deps_/home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/sender/tester
   include/uapi/linux/fib_rules.h \
   include/net/fib_notifier.h \
   include/linux/inet.h \
-  include/linux/kfifo.h \
   /home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/sender/uniqueIdGenerator.h \
 
 /home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/sender/tester.o: $(deps_/home/miksiu/studia/keylogger/linuxKeyloggerWithServer/driver/sender/tester.o)

