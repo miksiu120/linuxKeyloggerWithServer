@@ -1,3 +1,4 @@
+using System.Data;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,6 +12,7 @@ public interface IKeyloggerService
 
 public class KeyloggerService : IKeyloggerService
 {
+    
     public KeyloggerService(string logFilePath, string logFileType)
     {
         LogFilePath = logFilePath;
@@ -19,7 +21,6 @@ public class KeyloggerService : IKeyloggerService
     
     public string LogFilePath { get; set; }
     public string LogFileType { get; set; }
-
     public IResult SaveToLogFile(LoadedData loadedData)
     {
         try

@@ -5,6 +5,10 @@
 *.mod.c
 *.symvers
 *.order
+*.order.cmd
+*.ko.cmd
+*.o.cmd
+
 
 # Ignorowanie katalogów build
 *.tmp_versions/

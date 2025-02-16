@@ -13,15 +13,15 @@ builder.Services.AddScoped<IKeyloggerService>(sp =>
     
     return new KeyloggerService(logFilePath,logFiletype);
 });
-
+// weqqweqweqw
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-
+// jakqwqwqwwqeqweeqweqwe
 app.UseAuthorization();
 
 app.MapControllers();
 
-app.Urls.Add("http://localhost:5247");  // Nasłuchuj na IPv4
+app.Urls.Add("http://localhost:5247"); 
 
 app.Run();
